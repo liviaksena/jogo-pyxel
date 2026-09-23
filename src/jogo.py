@@ -9,29 +9,34 @@ class Jogo:
         pyxel.init(160, 120, title="SkyFall")
 
         self.jogador = Jogador()
-        self.inimigo = Inimigo(75, 10)
+        self.inimigos = [
+            Inimigo(20, 10),
+            Inimigo(75, 10),
+            Inimigo(120, 10)
+        ]
 
         pyxel.run(self.update, self.draw)
 
     def update(self):
         self.jogador.atualizar()
 
-        if self.inimigo is not None:
-            self.inimigo.atualizar()
+        for inimigo in self.inimigos:
+            inimigo.atualizar()
 
             for tiro in self.jogador.tiros[:]:
-                if self.verificar_colisao(tiro, self.inimigo):
-                    self.jogador.tiros.remove(tiro)
-                    self.inimigo = None
-                    break
+                for inimigo in self.inimigos[:]:
+                    if self.verificar_colisao(tiro, inimigo):
+                        self.jogador.tiros.remove(tiro)
+                        self.inimigos.remove(inimigo)
+                        break
 
     def draw(self):
         pyxel.cls(0)
 
         self.jogador.desenhar()
 
-        if self.inimigo is not None:
-            self.inimigo.desenhar()
+        for inimigo in self.inimigos:
+            inimigo.desenhar()
 
     def verificar_colisao(self, obj1, obj2):
         if (
