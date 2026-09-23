@@ -6,10 +6,10 @@ class Jogador:
 
     def __init__(self):
         self.x = 80
-        self.y = 60
+        self.y = 100
         self.largura = 10
         self.altura = 10
-        self.velocidade = 2
+        self.velocidade = 3
         self.tiros = []
 
     def atualizar(self):
