@@ -1,5 +1,5 @@
 import pyxel
-
+from src.cena import Cena
 from src.jogador import Jogador
 from src.inimigo import Inimigo
 
@@ -7,7 +7,7 @@ from src.inimigo import Inimigo
 class Jogo:
     def __init__(self):
         pyxel.init(160, 120, title="SkyFall")
-
+        self.cena = Cena()
         self.jogador = Jogador()
         self.inimigos = [
             Inimigo(20, 10),
@@ -19,7 +19,7 @@ class Jogo:
 
     def update(self):
         self.jogador.atualizar()
-
+        self.cena.update()
         for inimigo in self.inimigos:
             inimigo.atualizar()
 
@@ -32,7 +32,7 @@ class Jogo:
 
     def draw(self):
         pyxel.cls(0)
-
+        self.cena.draw()
         self.jogador.desenhar()
 
         for inimigo in self.inimigos:
