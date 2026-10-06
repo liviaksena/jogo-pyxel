@@ -1,5 +1,20 @@
 import pyxel
 
+class GerenciaInimigos:
+    def __init__(self):
+        self.inimigos = []
+
+    def adicionar_inimigo(self, inimigo):
+        self.inimigos.append(inimigo)
+
+    def atualizar_inimigos(self):
+        for inimigo in self.inimigos:
+            inimigo.atualizar()
+
+    def desenhar_inimigos(self):
+        for inimigo in self.inimigos:
+            inimigo.desenhar()
+            
 class Inimigo:
     def __init__(self, x, y):
         self.x = x
