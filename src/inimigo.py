@@ -1,5 +1,22 @@
 import pyxel
 
+from src.sprite import SPRITES
+
+class Inimigo:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.sprite = SPRITES["inimigo1"]
+        self.largura = self.sprite.largura
+        self.altura = self.sprite.altura
+        self.velocidade = 1
+
+    def atualizar(self):
+        self.y += self.velocidade
+
+    def desenhar(self):
+        pyxel.blt(self.x, self.y, self.sprite.imagem, self.sprite.u, self.sprite.v, self.sprite.largura, self.sprite.altura, colkey=0)
+
 class GerenciaInimigos:
     def __init__(self):
         self.inimigos = []
@@ -10,21 +27,5 @@ class GerenciaInimigos:
     def atualizar_inimigos(self):
         for inimigo in self.inimigos:
             inimigo.atualizar()
-
-    def desenhar_inimigos(self):
-        for inimigo in self.inimigos:
-            inimigo.desenhar()
-            
-class Inimigo:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.largura = 10
-        self.altura = 10
-        self.velocidade = 1
-
-    def atualizar(self):
-        self.y += self.velocidade
-
-    def desenhar(self):
-        pyxel.rect(self.x, self.y, self.largura, self.altura, 8)
+            if inimigo.y > pyxel.height:
+                self.inimigos.remove(inimigo)

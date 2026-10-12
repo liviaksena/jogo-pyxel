@@ -1,5 +1,6 @@
 import pyxel
 
+from src.sprite import SPRITES
 from src.tiro import Tiro
 
 class Jogador:
@@ -7,8 +8,9 @@ class Jogador:
     def __init__(self):
         self.x = 80
         self.y = 100
-        self.largura = 10
-        self.altura = 10
+        self.sprite = SPRITES["jogador"]
+        self.largura = self.sprite.largura
+        self.altura = self.sprite.altura
         self.velocidade = 3
         self.tiros = []
 
@@ -25,13 +27,13 @@ class Jogador:
         if pyxel.btn(pyxel.KEY_DOWN):
             self.y += self.velocidade
 
-        self.x = max(0, min(self.x, 160 - self.largura))
-        self.y = max(0, min(self.y, 120 - self.altura))
+        self.x = max(0, min(self.x, pyxel.width - self.sprite.largura))
+        self.y = max(0, min(self.y, pyxel.height - SPRITES["player-card"].altura - self.sprite.altura))
 
         if pyxel.btnp(pyxel.KEY_SPACE):
             self.atirar()
 
-        for tiro in self.tiros[:]:
+        for tiro in self.tiros:
             tiro.atualizar()
             if tiro.y < 0:
                 self.tiros.remove(tiro)
@@ -45,7 +47,8 @@ class Jogador:
 
 
     def desenhar(self):
-        pyxel.rect(self.x, self.y, self.largura, self.altura, 11)
+        pyxel.blt(self.x, self.y, self.sprite.imagem, self.sprite.u, self.sprite.v, self.sprite.largura, self.sprite.altura, colkey=0)
+
         
         for tiro in self.tiros:
             tiro.desenhar()
