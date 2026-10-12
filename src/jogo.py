@@ -1,34 +1,62 @@
 import pyxel
-from src.cena import Cena
+from src.cena import Cena, EstadoCena
 from src.jogador import Jogador
 from src.inimigo import GerenciaInimigos, Inimigo
 
 
 class Jogo:
     def __init__(self):
-        pyxel.init(160, 120, fps=60,title="SkyFall")
+        pyxel.init(160, 150, fps=60,title="SkyFall")
+        pyxel.load("../jogo-pyxel.pyxres")
         self.cena = Cena()
         self.jogador = Jogador()
         self.gerencia_inimigos = GerenciaInimigos()
+        self.vida_jogador = 5
+
+    
 
         pyxel.run(self.update, self.draw)
 
     def update(self):
-        self.jogador.atualizar()
-        self.cena.update()
-        self.gerencia_inimigos.atualizar_inimigos()
-        self.gerar_inimigos()
+        if self.cena.estado == EstadoCena.JOGANDO:
+            self.jogador.atualizar()
+            self.cena.update()
+            self.gerencia_inimigos.atualizar_inimigos()
+            self.gerar_inimigos()
 
-        for tiro in self.jogador.tiros:
+            for tiro in self.jogador.tiros:
+                        for inimigo in self.gerencia_inimigos.inimigos:
+                            if self.verificar_colisao(tiro, inimigo):
+                                self.gerencia_inimigos.inimigos.remove(inimigo)
+                                self.jogador.tiros.remove(tiro)
+                                break
+            
             for inimigo in self.gerencia_inimigos.inimigos:
-                if self.verificar_colisao(tiro, inimigo):
-                    self.jogador.tiros.remove(tiro)
+                if self.verificar_colisao(self.jogador, inimigo):
                     self.gerencia_inimigos.inimigos.remove(inimigo)
-                    break
+                    self.vida_jogador -= 1
+    
+                    if self.vida_jogador <= 0:
+                        self.vida_jogador = 0
+                        self.cena.estado = EstadoCena.GAME_OVER
+                        break
+
+        if self.cena.estado == EstadoCena.GAME_OVER:
+            if pyxel.btnp(pyxel.KEY_R):
+                self.reiniciar_jogo()
+
+            return
+        
+    def reiniciar_jogo(self):
+        self.cena.estado = EstadoCena.JOGANDO
+        self.jogador = Jogador()
+        self.gerencia_inimigos = GerenciaInimigos()
+        self.vida_jogador = 5
+
 
     def draw(self):
         pyxel.cls(0)
-        self.cena.draw()
+        self.cena.draw(hp=self.vida_jogador)
         self.jogador.desenhar()
 
         for inimigo in self.gerencia_inimigos.inimigos:
