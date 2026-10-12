@@ -12,6 +12,7 @@ class Jogo:
         self.jogador = Jogador()
         self.gerencia_inimigos = GerenciaInimigos()
         self.vida_jogador = 5
+        self.pontuacao = 0
 
     
 
@@ -27,7 +28,8 @@ class Jogo:
             for tiro in self.jogador.tiros:
                         for inimigo in self.gerencia_inimigos.inimigos:
                             if self.verificar_colisao(tiro, inimigo):
-                                self.gerencia_inimigos.inimigos.remove(inimigo)
+                                self.gerencia_inimigos.inimigos.remove(inimigo) 
+                                self.pontuacao += 1
                                 self.jogador.tiros.remove(tiro)
                                 break
             
@@ -45,6 +47,7 @@ class Jogo:
             if pyxel.btnp(pyxel.KEY_R):
                 self.reiniciar_jogo()
 
+
             return
         
     def reiniciar_jogo(self):
@@ -52,11 +55,11 @@ class Jogo:
         self.jogador = Jogador()
         self.gerencia_inimigos = GerenciaInimigos()
         self.vida_jogador = 5
-
+        self.pontuacao = 0
 
     def draw(self):
         pyxel.cls(0)
-        self.cena.draw(hp=self.vida_jogador)
+        self.cena.draw(hp=self.vida_jogador, pontuacao=self.pontuacao)
         self.jogador.desenhar()
 
         for inimigo in self.gerencia_inimigos.inimigos:
