@@ -19,6 +19,8 @@ SPRITES: dict[str, Sprite] = {
     "explosao": Sprite(imagem=0, u=96, v=0, largura=16, altura=16, n_quadros=6),
     "inimigo1": Sprite(imagem=0, u=0, v=16, largura=16, altura=16, n_quadros=5),
     "inimigo2": Sprite(imagem=0, u=80, v=16, largura=16, altura=16, n_quadros=5),
+    "boss": Sprite(imagem=0, u=0, v=48, largura=54, altura=64, n_quadros=2),
+    "projetil-boss": Sprite(imagem=0, u=96, v=128, largura=16, altura=32),
 
     ## UI
     "player-card": Sprite(imagem=1, u=0, v=0, largura=80, altura=28),

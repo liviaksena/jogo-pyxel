@@ -7,7 +7,10 @@ from src.sprite import SPRITES
 
 class EstadoCena(Enum):
     JOGANDO = 1
-    GAME_OVER = 2
+    BOSS = 2
+    GAME_OVER = 3
+    WIN = 4
+    
 
 
 SCREEN_OFFSET = 5
@@ -71,5 +74,5 @@ class Cena:
     def desenha_pontuacao(self, pontuacao):    
         pc = SPRITES["player-card"]
         y = pyxel.height - pc.altura
-        pyxel.text(26, y + 17,f"{pontuacao}", col = pyxel.COLOR_PINK)
+        pyxel.text(30, y + 17,f"{pontuacao}", col = pyxel.COLOR_PINK)
         

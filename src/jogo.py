@@ -1,12 +1,12 @@
 import pyxel
 from src.cena import Cena, EstadoCena
 from src.jogador import Jogador
-from src.inimigo import GerenciaInimigos, Inimigo
+from src.inimigo import Boss, GerenciaInimigos, Inimigo
 
 
 class Jogo:
     def __init__(self):
-        pyxel.init(160, 150, fps=60,title="SkyFall")
+        pyxel.init(180, 180, fps=60,title="SkyFall")
         pyxel.load("../jogo-pyxel.pyxres")
         self.cena = Cena()
         self.jogador = Jogador()
@@ -42,8 +42,40 @@ class Jogo:
                         self.vida_jogador = 0
                         self.cena.estado = EstadoCena.GAME_OVER
                         break
+            if self.pontuacao >=5:
+                self.cena.estado = EstadoCena.BOSS
+                self.boss = Boss()
 
-        if self.cena.estado == EstadoCena.GAME_OVER:
+        elif self.cena.estado == EstadoCena.BOSS:
+            self.jogador.atualizar()
+            self.cena.update()
+            self.boss.atualizar(self.jogador)
+
+            for tiro in self.jogador.tiros:
+                if self.verificar_colisao(tiro, self.boss):
+                    self.boss.vida -= 1
+                    self.jogador.tiros.remove(tiro)
+                    if self.boss.vida <= 0:
+                        self.cena.estado = EstadoCena.WIN
+                        break      
+
+            for tiro in self.jogador.tiros:
+                for projetil in self.boss.projeteis:
+                    if self.verificar_colisao(tiro, projetil):
+                        self.jogador.tiros.remove(tiro)
+                        self.boss.projeteis.remove(projetil)
+                        break
+
+            for projetil in self.boss.projeteis:
+                if self.verificar_colisao(self.jogador, projetil):
+                    self.boss.projeteis.remove(projetil)
+                    self.vida_jogador -= 1
+                    if self.vida_jogador <= 0:
+                        self.vida_jogador = 0
+                        self.cena.estado = EstadoCena.GAME_OVER
+                        break
+
+        elif self.cena.estado == EstadoCena.GAME_OVER:
             if pyxel.btnp(pyxel.KEY_R):
                 self.reiniciar_jogo()
 
@@ -64,6 +96,9 @@ class Jogo:
 
         for inimigo in self.gerencia_inimigos.inimigos:
             inimigo.desenhar()
+
+        if self.cena.estado == EstadoCena.BOSS:
+            self.boss.desenhar()
 
     def verificar_colisao(self, obj1, obj2):
         if (
