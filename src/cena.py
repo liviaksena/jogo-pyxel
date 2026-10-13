@@ -59,6 +59,9 @@ class Cena:
         if self.estado == EstadoCena.GAME_OVER:
             pyxel.text(60, 70, "GAME OVER", pyxel.COLOR_RED)
             pyxel.text(30, 80, "Pressione R para reiniciar", pyxel.frame_count % 16)
+        elif self.estado == EstadoCena.WIN:
+            pyxel.text(60, 70, "YOU WIN", pyxel.COLOR_GREEN)
+            pyxel.text(30, 80, "Pressione R para reiniciar", pyxel.frame_count % 16)
         else:
             self.desenha_vida(hp=hp/5) 
             self.desenha_pontuacao(pontuacao=pontuacao) 

@@ -79,6 +79,11 @@ class Jogo:
             if pyxel.btnp(pyxel.KEY_R):
                 self.reiniciar_jogo()
 
+            return
+
+        elif self.cena.estado == EstadoCena.WIN:
+            if pyxel.btnp(pyxel.KEY_R):
+                self.reiniciar_jogo()
 
             return
         
