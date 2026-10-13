@@ -1,23 +1,61 @@
 import heapq
 import math
 import pyxel
+import random
+from enum import Enum
+from src.animation import Animate
+from src.sprite import DURACAO_DEFAULT, SPRITES
 
-from src.sprite import SPRITES
+X_OFFSET = 10
 
-class Inimigo:
-    def __init__(self, x, y):
+class Side(Enum):
+    ESQUERDA = -1
+    DIREITA  =  1
+
+class Inimigo(Animate):
+    def __init__(self, x, y, tipo):
+        self.x_origem = x
         self.x = x
         self.y = y
-        self.sprite = SPRITES["inimigo1"]
+        self.y_origem = y
+        self.deslocamento_y = 0
+        self.tipo = tipo # tipo de inimigo 0 ou 1 (A ou B)
+        self.side = Side.ESQUERDA
+        if self.tipo == 0:
+            self.sprite = SPRITES["inimigo1"]
+        else:
+            self.sprite = SPRITES["inimigo2"]
         self.largura = self.sprite.largura
         self.altura = self.sprite.altura
-        self.velocidade = 1
+        self.velocidade = 1.5
+        self.raio_circular = 16
+        self.angulo = random.uniform(0, math.tau)
+        self.velocidade_angular = 0.08
+        super().__init__(self.sprite, DURACAO_DEFAULT)
+        
 
     def atualizar(self):
-        self.y += self.velocidade
+        self.atualiza_animacao()
+
+
+        if self.tipo == 0: # Comportamento do inimigo 1
+            if self.x >= self.x_origem + X_OFFSET:
+                self.side = Side.ESQUERDA
+            elif self.x <= self.x_origem - X_OFFSET:
+                self.side = Side.DIREITA
+            self.x += 1 * self.side.value
+            self.y += self.velocidade
+
+        if self.tipo == 1: # Comportamento do inimigo 2
+            self.angulo += self.velocidade_angular
+            self.deslocamento_y += self.velocidade
+            centro_y = self.y_origem + self.deslocamento_y
+            self.x = self.x_origem + math.cos(self.angulo) * self.raio_circular
+            self.y = centro_y + math.sin(self.angulo) * self.raio_circular
+        
 
     def desenhar(self):
-        pyxel.blt(self.x, self.y, self.sprite.imagem, self.sprite.u, self.sprite.v, self.sprite.largura, self.sprite.altura, colkey=0)
+        pyxel.blt(self.x, self.y, self.sprite.imagem, self.u_atual, self.sprite.v, self.sprite.largura, self.sprite.altura, colkey=0)
 
 class GerenciaInimigos:
     def __init__(self):
@@ -33,6 +71,11 @@ class GerenciaInimigos:
                 self.inimigos.remove(inimigo)
 
 
+
+
+### Implementação do Algoritmo A*, algoritmo de busca de menor caminho
+### Foi utilizado IA para auxilio da implementação desse algoritmo
+ 
 TAMANHO_GRADE = 16
 
 
@@ -80,7 +123,7 @@ class ProjetilBoss:
         self.y = float(y)
         self.largura = self.sprite.largura
         self.altura = self.sprite.altura
-        self.velocidade = 0.5
+        self.velocidade = 0.75
 
     def atualizar(self, jogador):
         colunas = (pyxel.width + TAMANHO_GRADE - 1) // TAMANHO_GRADE
@@ -131,7 +174,7 @@ class ProjetilBoss:
         )
 
 
-class Boss:
+class Boss(Animate):
     def __init__(self, x=None, y=8):
         self.sprite = SPRITES["boss"]
         self.x = (pyxel.width - self.sprite.largura) // 2 if x is None else x
@@ -140,10 +183,12 @@ class Boss:
         self.altura = self.sprite.altura
         self.projeteis = []
         self.tempo_disparo = 0
-        self.intervalo_disparo = 45
-        self.vida = 15
+        self.intervalo_disparo = 30
+        self.vida = 30
+        super().__init__(self.sprite, DURACAO_DEFAULT)
 
     def atualizar(self, jogador):
+        self.atualiza_animacao()
         self.tempo_disparo += 1
         if self.tempo_disparo >= self.intervalo_disparo:
             self.atirar()
@@ -154,13 +199,17 @@ class Boss:
             if projetil.y > pyxel.height:
                 self.projeteis.remove(projetil)
 
-    def desenhar(self):
-        pyxel.blt(self.x, self.y, self.sprite.imagem, self.sprite.u, self.sprite.v, self.sprite.largura, self.sprite.altura, colkey=0, scale=0.5)
+    def desenhar(self, side = 1):
+        pyxel.rect(x = self.x + 3, y = self.y - 5, w = 50 * (self.vida / 30), h = 3, col= pyxel.COLOR_RED)
+        pyxel.blt(self.x, self.y, self.sprite.imagem, self.u_atual, self.sprite.v, side * self.sprite.largura, self.sprite.altura, colkey=0)
         for projetil in self.projeteis:
             projetil.desenhar()
 
     def atirar(self):
-        sprite_projetil = SPRITES["projetil-boss"]
-        x = self.x + (self.largura - sprite_projetil.largura) // 2
-        y = self.y + self.altura - 8
+        side = random.choice([0, 1])
+        if side == 0:
+            x = pyxel.rndi(15, self.x - 2)
+        else:
+            x = pyxel.rndi(self.x + self.sprite.largura, pyxel.width - 15)
+        y = pyxel.rndi(int(self.y + (self.altura / 3)), self.y + self.altura)
         self.projeteis.append(ProjetilBoss(x, y))

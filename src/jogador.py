@@ -1,7 +1,9 @@
 import pyxel
 
-from src.sprite import SPRITES
+from src.animation import Animate
+from src.sprite import DURACAO_DEFAULT, SPRITES
 from src.tiro import Tiro
+
 
 class Jogador:
 
@@ -13,8 +15,11 @@ class Jogador:
         self.altura = self.sprite.altura
         self.velocidade = 3
         self.tiros = []
+        self.turbina = TurbinaJogador()
 
     def atualizar(self):
+        self.turbina.atualiza_animacao()
+
         if pyxel.btn(pyxel.KEY_LEFT):
             self.x -= self.velocidade
 
@@ -47,8 +52,18 @@ class Jogador:
 
 
     def desenhar(self):
+        self.turbina.desenha(self.x, self.y)
         pyxel.blt(self.x, self.y, self.sprite.imagem, self.sprite.u, self.sprite.v, self.sprite.largura, self.sprite.altura, colkey=0)
 
         
         for tiro in self.tiros:
             tiro.desenhar()
+
+
+class TurbinaJogador(Animate):
+    def __init__(self):
+        self.sprite = SPRITES["boost"]
+        super().__init__(self.sprite, DURACAO_DEFAULT)
+
+    def desenha(self, x_jogador, y_jogador):
+        pyxel.blt(x_jogador, y_jogador + 15, self.sprite.imagem, self.u_atual, self.sprite.v, self.sprite.largura, self.sprite.altura, 0)
