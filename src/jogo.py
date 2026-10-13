@@ -1,3 +1,5 @@
+import random
+
 import pyxel
 from src.cena import Cena, EstadoCena
 from src.jogador import Jogador
@@ -13,12 +15,16 @@ class Jogo:
         self.gerencia_inimigos = GerenciaInimigos()
         self.vida_jogador = 5
         self.pontuacao = 0
+        self.selected_option = 0
 
     
 
         pyxel.run(self.update, self.draw)
 
     def update(self):
+        """logica central do jogo, utilizando maquina de estados"""
+        if self.cena.estado == EstadoCena.MENU:
+            self.cena.update()
         if self.cena.estado == EstadoCena.JOGANDO:
             self.jogador.atualizar()
             self.cena.update()
@@ -42,9 +48,10 @@ class Jogo:
                         self.vida_jogador = 0
                         self.cena.estado = EstadoCena.GAME_OVER
                         break
-            if self.pontuacao >=5:
+            if self.pontuacao >= 25:
                 self.cena.estado = EstadoCena.BOSS
                 self.boss = Boss()
+                self.vida_jogador = 5
 
         elif self.cena.estado == EstadoCena.BOSS:
             self.jogador.atualizar()
@@ -88,6 +95,7 @@ class Jogo:
             return
         
     def reiniciar_jogo(self):
+        """redefine as variaveis para reiniciar o jogo"""
         self.cena.estado = EstadoCena.JOGANDO
         self.jogador = Jogador()
         self.gerencia_inimigos = GerenciaInimigos()
@@ -96,14 +104,19 @@ class Jogo:
 
     def draw(self):
         pyxel.cls(0)
-        self.cena.draw(hp=self.vida_jogador, pontuacao=self.pontuacao)
-        self.jogador.desenhar()
 
-        for inimigo in self.gerencia_inimigos.inimigos:
-            inimigo.desenhar()
+        self.cena.draw(hp=self.vida_jogador, pontuacao=self.pontuacao)
+        if self.cena.estado == EstadoCena.JOGANDO or self.cena.estado == EstadoCena.BOSS:
+            self.jogador.desenhar()
+        
+        if self.cena.estado == EstadoCena.JOGANDO:
+            for inimigo in self.gerencia_inimigos.inimigos:
+                inimigo.desenhar()
 
         if self.cena.estado == EstadoCena.BOSS:
-            self.boss.desenhar()
+            posicao_jogador = -1 if self.jogador.x > pyxel.width / 2 else 1 # caso o jogador esteja na direita, inverte o sprite para a direita
+            self.boss.desenhar(side = posicao_jogador)
+            
 
     def verificar_colisao(self, obj1, obj2):
         if (
@@ -119,5 +132,5 @@ class Jogo:
         if pyxel.frame_count % 60 == 0:
             x = pyxel.rndi(0, 160 - 10)
             y = -10
-            inimigo = Inimigo(x, y)
+            inimigo = Inimigo(x, y, random.choice([0, 1]))
             self.gerencia_inimigos.adicionar_inimigo(inimigo)

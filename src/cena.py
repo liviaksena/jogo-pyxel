@@ -6,10 +6,11 @@ from enum import Enum
 from src.sprite import SPRITES
 
 class EstadoCena(Enum):
-    JOGANDO = 1
-    BOSS = 2
-    GAME_OVER = 3
-    WIN = 4
+    MENU      = 1
+    JOGANDO   = 2
+    BOSS      = 3
+    GAME_OVER = 4
+    WIN       = 5
     
 
 
@@ -38,16 +39,31 @@ class Particula:
 class Cena:
     def __init__(self):
         self.particulas = []
-        self.estado = EstadoCena.JOGANDO 
+        self.estado = EstadoCena.MENU
+        self.option = 0
+
+
     def update(self):
-        if self.estado == EstadoCena.JOGANDO:
+        if self.estado.value <= 3: # Estados MENU, JOGANDO e BOSS
             if random.uniform(0, 1) > PARTICLE_SPAWN_PERCENTAGE:  # 40% de chance de spawnar particula
                 self.particulas.append(Particula.fromRandom())
 
             for particula in self.particulas:
                 particula.update()
         
-        self.__limpa_particulas()
+            self.__limpa_particulas()
+
+        if self.estado == EstadoCena.MENU:
+            if pyxel.btn(pyxel.KEY_UP):
+                self.option = 0
+            elif pyxel.btn(pyxel.KEY_DOWN):
+                self.option  = 1
+            elif pyxel.btn(pyxel.KEY_SPACE):
+                if self.option == 0:
+                    self.estado = EstadoCena.JOGANDO
+                else:
+                    pyxel.quit()
+
         
 
     def __limpa_particulas(self):
@@ -55,12 +71,31 @@ class Cena:
             self.particulas.pop(0)  
 
     def draw(self,hp=0, pontuacao=0):
+        if self.estado == EstadoCena.MENU:
+            play_btn = SPRITES["play-button"]
+            exit_btn = SPRITES["exit-button"]
 
-        if self.estado == EstadoCena.GAME_OVER:
-            pyxel.text(60, 70, "GAME OVER", pyxel.COLOR_RED)
+            if self.option == 0:
+                y_selecionado = 70
+            else:
+                y_selecionado = 80 + play_btn.altura
+
+            if pyxel.frame_count % 48 >= 24:
+                color = pyxel.COLOR_YELLOW
+            else:
+                color = pyxel.COLOR_BLACK
+
+            pyxel.text(55, 50, "Pressione Espaco", col=pyxel.COLOR_WHITE)
+            pyxel.blt(60, 70, play_btn.imagem, play_btn.u, play_btn.v, play_btn.largura, play_btn.altura, colkey=0)
+            pyxel.blt(60, 80 + play_btn.altura, exit_btn.imagem, exit_btn.u, exit_btn.v, exit_btn.largura, exit_btn.altura, colkey=0)
+            pyxel.rectb(58, y_selecionado - 2, play_btn.largura + 1, play_btn.altura + 2, color)
+            for particula in self.particulas:
+                particula.draw()
+        elif self.estado == EstadoCena.GAME_OVER:
+            pyxel.text(60, 70, "Voce Perdeu", pyxel.COLOR_RED)
             pyxel.text(30, 80, "Pressione R para reiniciar", pyxel.frame_count % 16)
         elif self.estado == EstadoCena.WIN:
-            pyxel.text(60, 70, "YOU WIN", pyxel.COLOR_GREEN)
+            pyxel.text(60, 70, "Voce Venceu", pyxel.COLOR_GREEN)
             pyxel.text(30, 80, "Pressione R para reiniciar", pyxel.frame_count % 16)
         else:
             self.desenha_vida(hp=hp/5) 
@@ -77,5 +112,5 @@ class Cena:
     def desenha_pontuacao(self, pontuacao):    
         pc = SPRITES["player-card"]
         y = pyxel.height - pc.altura
-        pyxel.text(30, y + 17,f"{pontuacao}", col = pyxel.COLOR_PINK)
+        pyxel.text(30, y + 17,f"{pontuacao} / 25", col = pyxel.COLOR_PINK)
         
