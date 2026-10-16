@@ -118,7 +118,7 @@ def encontrar_caminho_a_estrela(inicio, destino, colunas, linhas):
 
 class ProjetilBoss:
     def __init__(self, x, y):
-        self.sprite = SPRITES["projetil-boss"]
+        self.sprite = SPRITES["projetil-boss"] 
         self.x = float(x)
         self.y = float(y)
         self.largura = self.sprite.largura
