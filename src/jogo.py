@@ -83,7 +83,7 @@ class Jogo:
                         break
 
         elif self.cena.estado == EstadoCena.GAME_OVER:
-            if pyxel.btnp(pyxel.KEY_R):
+            if pyxel.btnp(pyxel.KEY_R): #button pressed
                 self.reiniciar_jogo()
 
             return
